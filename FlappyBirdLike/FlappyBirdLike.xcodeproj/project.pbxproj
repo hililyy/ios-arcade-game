@@ -14,6 +14,7 @@
 		2A6DB6702A5D375F00D9D1B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DB66F2A5D375F00D9D1B6 /* Assets.xcassets */; };
 		2A6DB6732A5D375F00D9D1B6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2A6DB6712A5D375F00D9D1B6 /* LaunchScreen.storyboard */; };
 		2AB43ACB2A5D4E24004F74E7 /* ActionList.sks in Resources */ = {isa = PBXBuildFile; fileRef = 2AB43ACA2A5D4E24004F74E7 /* ActionList.sks */; };
+		2AB43ACD2A5D55EC004F74E7 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB43ACC2A5D55EC004F74E7 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		2A6DB66F2A5D375F00D9D1B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2A6DB6722A5D375F00D9D1B6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2AB43ACA2A5D4E24004F74E7 /* ActionList.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = ActionList.sks; sourceTree = "<group>"; };
+		2AB43ACC2A5D55EC004F74E7 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 			children = (
 				2A6DB6622A5D375E00D9D1B6 /* AppDelegate.swift */,
 				2A6DB6682A5D375E00D9D1B6 /* GameScene.swift */,
+				2AB43ACC2A5D55EC004F74E7 /* Constants.swift */,
 				2AB43ACA2A5D4E24004F74E7 /* ActionList.sks */,
 				2A6DB66A2A5D375E00D9D1B6 /* GameViewController.swift */,
 				2A6DB66C2A5D375E00D9D1B6 /* Main.storyboard */,
@@ -143,6 +146,7 @@
 				2A6DB6692A5D375E00D9D1B6 /* GameScene.swift in Sources */,
 				2A6DB66B2A5D375E00D9D1B6 /* GameViewController.swift in Sources */,
 				2A6DB6632A5D375E00D9D1B6 /* AppDelegate.swift in Sources */,
+				2AB43ACD2A5D55EC004F74E7 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
