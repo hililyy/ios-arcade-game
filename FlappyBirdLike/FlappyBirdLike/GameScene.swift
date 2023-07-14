@@ -12,6 +12,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var bird = SKSpriteNode()
     
+    var score: Int = 0 {
+        didSet {
+            scoreLabel.text = "\(score)"
+        }
+    }
+    var scoreLabel = SKLabelNode()
+    
+    
+    // MARK:- Sprites Aligment
     override func didMove(to view: SKView) {
         let bgColor = SKColor(red: 81.0 / 255, green: 192.0 / 255, blue: 201.0 / 255, alpha: 1.0)
         backgroundColor = bgColor
@@ -19,9 +28,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         
+        createScore()
         createBird()
         createEnvironment()
         createInfinitePipe(duration: 4)
+    }
+    
+    func createScore() {
+        scoreLabel = SKLabelNode(fontNamed: "Minercraftoryf")
+        scoreLabel.fontSize = 24
+        scoreLabel.fontColor = .white
+        scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - 150)
+        scoreLabel.zPosition = Layer.hud
+        scoreLabel.horizontalAlignmentMode = .center
+        scoreLabel.text = "\(score)"
+        addChild(scoreLabel)
     }
     
     func createBird() {
@@ -158,6 +179,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         run(SKAction.repeatForever(actSeq))
     }
     
+    // MARK:- Game Algorithm
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
         bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 7))
@@ -181,7 +203,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case PhysicsCategory.pipe:
             print("pipe!")
         case PhysicsCategory.score:
-            print("score!")
+            score += 1
+            print(score)
         default:
             break
         }
