@@ -16,6 +16,7 @@ enum GameState {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    let cameraNode = SKCameraNode()
     var bird = SKSpriteNode()
     var gameState = GameState.ready
     
@@ -38,6 +39,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         createScore()
         createBird()
         createEnvironment()
+        
+        // 카메라 추가
+        camera = cameraNode
+        cameraNode.position.x = size.width / 2
+        cameraNode.position.y = size.height / 2
+        addChild(cameraNode)
     }
     
     func createScore() {
@@ -53,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func createBird() {
         bird = SKSpriteNode(imageNamed: "bird1")
-        bird.position = CGPoint(x: self.size.width / 2, y: 350)
+        bird.position = CGPoint(x: size.width / 4, y: size.height / 2)
         bird.zPosition = Layer.bird
         
         bird.physicsBody = SKPhysicsBody(circleOfRadius: bird.size.height / 2)
@@ -234,6 +241,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func gameOver() {
         self.gameState = .dead
-        self.isPaused = true
+        damageEffect()
+        cameraShake()
+    }
+    
+    // 부딪힐 때 빨간 화면 보여줌
+    func damageEffect() {
+        let flashNode = SKSpriteNode(color: UIColor(red: 1, green: 0, blue: 0, alpha: 1), size: self.size)
+        let actionSequence = SKAction.sequence([SKAction.wait(forDuration: 0.1), SKAction.removeFromParent()])
+        flashNode.name = "flashNode"
+        flashNode.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        flashNode.zPosition = Layer.hud
+        addChild(flashNode)
+        flashNode.run(actionSequence)
+    }
+    
+    func cameraShake() {
+        let moveLeft = SKAction.moveTo(x: size.width / 2 - 5, duration: 0.1)
+        let moveRight = SKAction.moveTo(x: size.width / 2 + 5, duration: 0.1)
+        let moveReset = SKAction.moveTo(x: size.width / 2, duration: 0.1)
+        let shakeAction = SKAction.sequence([moveLeft, moveRight, moveLeft, moveRight, moveReset])
+        shakeAction.timingMode = .easeInEaseOut
+        self.cameraNode.run(shakeAction)
     }
 }
