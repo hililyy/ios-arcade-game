@@ -48,7 +48,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func createScore() {
-        scoreLabel = SKLabelNode(fontNamed: "Minercraftoryf")
+        scoreLabel = SKLabelNode(fontNamed: "Minercraftory")
         scoreLabel.fontSize = 24
         scoreLabel.fontColor = .white
         scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - 150)
@@ -206,9 +206,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 7))
             
         case .dead:
-            let scene = GameScene(size: self.size)
-            let transition = SKTransition.doorsOpenHorizontal(withDuration: 1)
-            self.view?.presentScene(scene, transition: transition)
+            
+            let touch = touches.first
+            if let location = touch?.location(in: self) {
+                let nodesArray = self.nodes(at: location)
+                if nodesArray.first?.name == "restartBtn" {
+                    let scene = GameScene(size: self.size)
+                    let transition = SKTransition.doorsOpenHorizontal(withDuration: 1)
+                    self.view?.presentScene(scene, transition: transition)
+                }
+            }
         }
     }
     
@@ -225,12 +232,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         switch collideType {
         case PhysicsCategory.land:
             print("land!")
-            gameOver()
+            
+            if gameState == .playing {
+                gameOver()
+            }
         case PhysicsCategory.ceiling:
             print("ceiling!")
         case PhysicsCategory.pipe:
             print("pipe!")
-            gameOver()
+            if gameState == .playing {
+                gameOver()
+            }
         case PhysicsCategory.score:
             score += 1
             print(score)
@@ -239,10 +251,91 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    override func update(_ currentTime: TimeInterval) {
+        let rotation = bird.zRotation
+        if rotation > 0 {
+            bird.zRotation = min(rotation, 0.7)
+        } else {
+            bird.zRotation = max(rotation, -0.7)
+        }
+        
+        if self.gameState == .dead {
+            bird.physicsBody?.velocity.dx = 0
+        }
+    }
+    
     func gameOver() {
-        self.gameState = .dead
         damageEffect()
         cameraShake()
+        
+        self.bird.removeAllActions()
+        createGameoverBoard()
+        self.gameState = .dead
+    }
+    
+    func recordBestScore() {
+        let userDefaults = UserDefaults.standard
+        var bestScore = userDefaults.integer(forKey: "bestScore")
+        
+        if score > bestScore {
+            bestScore = score
+            userDefaults.set(bestScore, forKey: "bestScore")
+        }
+        
+        userDefaults.synchronize()
+    }
+    
+    func createGameoverBoard() {
+        recordBestScore()
+        
+        let gameoverBoard = SKSpriteNode(imageNamed: "gameoverBoard")
+        gameoverBoard.position = CGPoint(x: size.width / 2, y: -gameoverBoard.size.height)
+        gameoverBoard.zPosition = Layer.hud
+        addChild(gameoverBoard)
+        
+        var medal = SKSpriteNode()
+        if score >= 10 {
+            medal = SKSpriteNode(imageNamed: "medalPlatinum")
+        } else if score >= 5 {
+            medal = SKSpriteNode(imageNamed: "medalGold")
+        } else if score >= 3 {
+            medal = SKSpriteNode(imageNamed: "medalSilver")
+        } else if score >= 1 {
+            medal = SKSpriteNode(imageNamed: "medalBronze")
+        }
+        
+        medal.position = CGPoint(x: -gameoverBoard.size.width * 0.27, y: gameoverBoard.size.height * 0.02)
+        medal.zPosition = 0.1
+        gameoverBoard.addChild(medal)
+        
+        let scoreLabel = SKLabelNode(fontNamed: "Minercraftory")
+        scoreLabel.fontSize = 13
+        scoreLabel.fontColor = .orange
+        scoreLabel.text = "\(score)"
+        scoreLabel.horizontalAlignmentMode = .left
+        scoreLabel.position = CGPoint(x: gameoverBoard.size.width * 0.35, y: gameoverBoard.size.height * 0.07)
+        scoreLabel.zPosition = 0.1
+        gameoverBoard.addChild(scoreLabel)
+        
+        let bestScore = UserDefaults.standard.integer(forKey: "bestScore")
+        let bestScoreLabel = SKLabelNode(fontNamed: "Minercraftory")
+        bestScoreLabel.fontSize = 13
+        bestScoreLabel.fontColor = .orange
+        bestScoreLabel.text = "\(bestScore)"
+        bestScoreLabel.horizontalAlignmentMode = .left
+        bestScoreLabel.position = CGPoint(x: gameoverBoard.size.width * 0.35, y: -gameoverBoard.size.height * 0.07)
+        bestScoreLabel.zPosition = 0.1
+        gameoverBoard.addChild(bestScoreLabel)
+        
+        let restartBtn = SKSpriteNode(imageNamed: "playBtn")
+        restartBtn.name = "restartBtn"
+        restartBtn.position = CGPoint(x: 0, y: -gameoverBoard.size.height * 0.35)
+        restartBtn.zPosition = 0.1
+        gameoverBoard.addChild(restartBtn)
+        
+        gameoverBoard.run(SKAction.sequence([SKAction.moveTo(y: size.height / 2, duration: 1), SKAction.run {
+            self.speed = 0
+        }]))
     }
     
     // 부딪힐 때 빨간 화면 보여줌
