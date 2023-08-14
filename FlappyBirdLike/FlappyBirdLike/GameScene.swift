@@ -8,9 +8,16 @@
 import SpriteKit
 import GameplayKit
 
+enum GameState {
+    case ready
+    case playing
+    case dead
+}
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var bird = SKSpriteNode()
+    var gameState = GameState.ready
     
     var score: Int = 0 {
         didSet {
@@ -31,7 +38,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         createScore()
         createBird()
         createEnvironment()
-        createInfinitePipe(duration: 4)
     }
     
     func createScore() {
@@ -55,7 +61,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bird.physicsBody?.contactTestBitMask = PhysicsCategory.land | PhysicsCategory.pipe | PhysicsCategory.ceiling | PhysicsCategory.score
         bird.physicsBody?.collisionBitMask = PhysicsCategory.land | PhysicsCategory.pipe | PhysicsCategory.ceiling
         bird.physicsBody?.affectedByGravity = true
-        bird.physicsBody?.isDynamic = true
+        bird.physicsBody?.isDynamic = false
         addChild(bird)
         
         guard let flyingBySKS = SKAction(named: "flying") else { return }
@@ -181,8 +187,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK:- Game Algorithm
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-        bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 7))
+        switch gameState {
+        case .ready:
+            gameState = .playing
+            self.bird.physicsBody?.isDynamic = true // 중력
+            self.bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 10))
+            self.createInfinitePipe(duration: 4) // 파이프가 움직이게
+            
+        case .playing:
+            bird.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 7))
+            
+        case .dead:
+            let scene = GameScene(size: self.size)
+            let transition = SKTransition.doorsOpenHorizontal(withDuration: 1)
+            self.view?.presentScene(scene, transition: transition)
+        }
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -198,15 +218,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         switch collideType {
         case PhysicsCategory.land:
             print("land!")
+            gameOver()
         case PhysicsCategory.ceiling:
             print("ceiling!")
         case PhysicsCategory.pipe:
             print("pipe!")
+            gameOver()
         case PhysicsCategory.score:
             score += 1
             print(score)
         default:
             break
         }
+    }
+    
+    func gameOver() {
+        self.gameState = .dead
+        self.isPaused = true
     }
 }
